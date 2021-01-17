@@ -16,15 +16,15 @@ export default class Sketch {
 
   addMesh() {
     this.geometry = new THREE.PlaneBufferGeometry( 1, 1);
-    this.material = new THREE.MeshNormalMaterial();
+    this.material = new THREE.MeshNormalMaterial({side: THREE.DoubleSide});
     this.mesh = new THREE.Mesh( this.geometry, this.material );
 	  this.scene.add( this.mesh );
   }
 
   render(){
     this.time++;
-    this.mesh.rotation.x = this.time / 2000;
-	  this.mesh.rotation.y = this.time / 1000;
+    this.mesh.rotation.x += 0.01;
+	  this.mesh.rotation.y += 0.02;
     console.log(this.time++);
     this.renderer.render( this.scene, this.camera );
     window.requestAnimationFrame(this.render.bind(this))
