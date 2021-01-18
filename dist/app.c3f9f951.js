@@ -36942,9 +36942,9 @@ if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
 
 }
 },{}],"shaders/fragment.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nvarying vec2 vCoordinates;\nuniform sampler2D t1;\nuniform sampler2D t2;\n\nvoid main() {\n  vec2 myUV = vec2(vCoordinates.x/512.,vCoordinates.y/512.);\n  vec4 image = texture2D(t2,myUV);\n  gl_FragColor = image;\n}";
+module.exports = "#define GLSLIFY 1\nvarying vec2 vCoordinates;\nuniform sampler2D t1;\nuniform sampler2D t2;\nuniform sampler2D mask;\n\nvoid main() {\n  vec4 maskTexture = texture2D(mask,gl_PointCoord);\n  vec2 myUV = vec2(vCoordinates.x/512.,vCoordinates.y/512.);\n  vec4 image = texture2D(t2,myUV);\n  gl_FragColor = image;\n\n  gl_FragColor.a *=maskTexture.r;\n}";
 },{}],"shaders/vertex.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nvarying vec2 vCoordinates;\nattribute vec3 aCoordinates;\n\nvoid main() {\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4( position, 1. );\n  gl_PointSize = 2000. * ( 1. / - mvPosition.z ) ;\n  gl_Position = projectionMatrix * mvPosition;\n  vCoordinates = aCoordinates.xy;\n}";
+module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nvarying vec2 vCoordinates;\nattribute vec3 aCoordinates;\n\nvoid main() {\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4( position, 1. );\n  gl_PointSize = 1000. * ( 1. / - mvPosition.z ) ;\n  gl_Position = projectionMatrix * mvPosition;\n  vCoordinates = aCoordinates.xy;\n}";
 },{}],"img/mask.png":[function(require,module,exports) {
 module.exports = "/mask.b3a1ed41.png";
 },{}],"img/t1.png":[function(require,module,exports) {
@@ -38020,6 +38020,7 @@ var Sketch = /*#__PURE__*/function () {
     this.camera.position.z = 1000;
     this.scene = new THREE.Scene();
     this.textures = [new THREE.TextureLoader().load(_t.default), new THREE.TextureLoader().load(_t2.default)];
+    this.mask = new THREE.TextureLoader().load(_mask.default);
     this.time = 0;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.addMesh();
@@ -38044,6 +38045,10 @@ var Sketch = /*#__PURE__*/function () {
           t2: {
             type: "t",
             value: this.textures[1]
+          },
+          mask: {
+            type: "t",
+            value: this.mask
           }
         },
         side: THREE.DoubleSide,

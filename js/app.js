@@ -19,6 +19,7 @@ export default class Sketch {
       new THREE.TextureLoader().load(t1),
       new THREE.TextureLoader().load(t2),
     ]
+    this.mask = new THREE.TextureLoader().load(mask);
     this.time = 0;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.addMesh();    
@@ -32,7 +33,8 @@ export default class Sketch {
       uniforms: {
         progress: {type: "f", value: 0},
         t1: {type: "t", value: this.textures[0]},
-        t2: {type: "t", value: this.textures[1]}
+        t2: {type: "t", value: this.textures[1]},
+        mask: {type: "t", value: this.mask}
       },
       side: THREE.DoubleSide,
       transparent: true,
