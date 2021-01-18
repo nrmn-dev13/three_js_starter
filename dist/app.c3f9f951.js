@@ -36942,9 +36942,15 @@ if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
 
 }
 },{}],"shaders/fragment.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nvoid main() {\n  gl_FragColor = vec4(1.,0.,0.,1.);\n}";
+module.exports = "#define GLSLIFY 1\nvarying vec2 vCoordinates;\nuniform sampler2D t1;\nuniform sampler2D t2;\n\nvoid main() {\n  vec2 myUV = vec2(vCoordinates.x/512.,vCoordinates.y/512.);\n  vec4 image = texture2D(t2,myUV);\n  gl_FragColor = image;\n}";
 },{}],"shaders/vertex.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\n\nvoid main() {\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4( position, 1. );\n  gl_PointSize = 750. * ( 1. / - mvPosition.z ) ;\n  gl_Position = projectionMatrix * mvPosition;\n  \n}";
+module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nvarying vec2 vCoordinates;\nattribute vec3 aCoordinates;\n\nvoid main() {\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4( position, 1. );\n  gl_PointSize = 2000. * ( 1. / - mvPosition.z ) ;\n  gl_Position = projectionMatrix * mvPosition;\n  vCoordinates = aCoordinates.xy;\n}";
+},{}],"img/mask.png":[function(require,module,exports) {
+module.exports = "/mask.b3a1ed41.png";
+},{}],"img/t1.png":[function(require,module,exports) {
+module.exports = "/t1.22b9ca6f.png";
+},{}],"img/t2.png":[function(require,module,exports) {
+module.exports = "/t2.63420f5f.png";
 },{}],"node_modules/three-orbit-controls/index.js":[function(require,module,exports) {
 module.exports = function( THREE ) {
 	/**
@@ -37981,6 +37987,12 @@ var _fragment = _interopRequireDefault(require("../shaders/fragment.glsl"));
 
 var _vertex = _interopRequireDefault(require("../shaders/vertex.glsl"));
 
+var _mask = _interopRequireDefault(require("../img/mask.png"));
+
+var _t = _interopRequireDefault(require("../img/t1.png"));
+
+var _t2 = _interopRequireDefault(require("../img/t2.png"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -38007,6 +38019,7 @@ var Sketch = /*#__PURE__*/function () {
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 3000);
     this.camera.position.z = 1000;
     this.scene = new THREE.Scene();
+    this.textures = [new THREE.TextureLoader().load(_t.default), new THREE.TextureLoader().load(_t2.default)];
     this.time = 0;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.addMesh();
@@ -38023,13 +38036,25 @@ var Sketch = /*#__PURE__*/function () {
           progress: {
             type: "f",
             value: 0
+          },
+          t1: {
+            type: "t",
+            value: this.textures[0]
+          },
+          t2: {
+            type: "t",
+            value: this.textures[1]
           }
         },
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false
       });
       var number = 512 * 512;
       this.geometry = new THREE.BufferGeometry();
       this.positions = new THREE.BufferAttribute(new Float32Array(number * 3), 3);
+      this.coordinates = new THREE.BufferAttribute(new Float32Array(number * 3), 3);
       var index = 0;
 
       for (var i = 0; i < 512; i++) {
@@ -38037,11 +38062,13 @@ var Sketch = /*#__PURE__*/function () {
 
         for (var j = 0; j < 512; j++) {
           this.positions.setXYZ(index, posX * 2, (j - 256) * 2, 0);
+          this.coordinates.setXYZ(index, i, j, 0);
           index++;
         }
       }
 
       this.geometry.setAttribute("position", this.positions);
+      this.geometry.setAttribute("aCoordinates", this.coordinates);
       this.mesh = new THREE.Points(this.geometry, this.material);
       this.scene.add(this.mesh);
     }
@@ -38061,7 +38088,7 @@ var Sketch = /*#__PURE__*/function () {
 
 exports.default = Sketch;
 new Sketch();
-},{"three":"node_modules/three/build/three.module.js","../shaders/fragment.glsl":"shaders/fragment.glsl","../shaders/vertex.glsl":"shaders/vertex.glsl","three-orbit-controls":"node_modules/three-orbit-controls/index.js"}],"C:/Users/norma/AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","../shaders/fragment.glsl":"shaders/fragment.glsl","../shaders/vertex.glsl":"shaders/vertex.glsl","../img/mask.png":"img/mask.png","../img/t1.png":"img/t1.png","../img/t2.png":"img/t2.png","three-orbit-controls":"node_modules/three-orbit-controls/index.js"}],"C:/Users/norma/AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
