@@ -9,7 +9,7 @@ export default class Sketch {
     this.renderer = new THREE.WebGLRenderer( { antialias: true } );
     this.renderer.setSize( window.innerWidth, window.innerHeight );    
     document.getElementById('container').appendChild( this.renderer.domElement );
-    this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 3000 );
+    this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 3000 );
     this.camera.position.z = 1000;
     this.scene = new THREE.Scene();
     this.time = 0;
@@ -33,7 +33,7 @@ export default class Sketch {
 
     let index = 0;
     for (let i = 0; i < 512; i++) {
-      let posX = i -256;
+      let posX = i - 256;
       for (let j = 0; j < 512; j++) {        
         this.positions.setXYZ(index,posX*2,(j-256)*2,0)
         index++;

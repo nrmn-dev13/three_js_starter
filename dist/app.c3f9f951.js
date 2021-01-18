@@ -36944,7 +36944,7 @@ if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
 },{}],"shaders/fragment.glsl":[function(require,module,exports) {
 module.exports = "#define GLSLIFY 1\nvoid main() {\n  gl_FragColor = vec4(1.,0.,0.,1.);\n}";
 },{}],"shaders/vertex.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\n\nvoid main() {\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4(position, 1.);\n  gl_PointSize = 5000. * (1. / - mvPosition.z) ;\n  gl_Position = projectionMatrix * mvPosition;\n  \n}";
+module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\n\nvoid main() {\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4( position, 1. );\n  gl_PointSize = 750. * ( 1. / - mvPosition.z ) ;\n  gl_Position = projectionMatrix * mvPosition;\n  \n}";
 },{}],"node_modules/three-orbit-controls/index.js":[function(require,module,exports) {
 module.exports = function( THREE ) {
 	/**
@@ -38004,7 +38004,7 @@ var Sketch = /*#__PURE__*/function () {
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('container').appendChild(this.renderer.domElement);
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 3000);
+    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 3000);
     this.camera.position.z = 1000;
     this.scene = new THREE.Scene();
     this.time = 0;
