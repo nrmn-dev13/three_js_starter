@@ -36944,7 +36944,7 @@ if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
 },{}],"shaders/fragment.glsl":[function(require,module,exports) {
 module.exports = "#define GLSLIFY 1\nvarying vec2 vCoordinates;\nuniform sampler2D t1;\nuniform sampler2D t2;\nuniform sampler2D mask;\n\nvoid main() {\n  vec4 maskTexture = texture2D(mask,gl_PointCoord);\n  vec2 myUV = vec2(vCoordinates.x/512.,vCoordinates.y/512.);\n  vec4 image = texture2D(t2,myUV);\n  gl_FragColor = image;\n\n  gl_FragColor.a *=maskTexture.r;\n}";
 },{}],"shaders/vertex.glsl":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nvarying vec2 vCoordinates;\nattribute vec3 aCoordinates;\n\nvoid main() {\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4( position, 1. );\n  gl_PointSize = 1000. * ( 1. / - mvPosition.z ) ;\n  gl_Position = projectionMatrix * mvPosition;\n  vCoordinates = aCoordinates.xy;\n}";
+module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nvarying vec2 vPos;\nvarying vec2 vCoordinates;\nattribute vec3 aCoordinates;\nattribute float aSpeed;\nattribute float aOffset;\n\nuniform float move;\nuniform float time;\n\nvoid main() {\n  vUv = uv;\n  vec3 pos = position;\n  pos.z = position.z + move*20.*aSpeed + aOffset;\n\n  vec4 mvPosition = modelViewMatrix * vec4( pos, 1. );\n  gl_PointSize = 1000. * ( 1. / - mvPosition.z ) ;\n  gl_Position = projectionMatrix * mvPosition;\n  vCoordinates = aCoordinates.xy;\n}";
 },{}],"img/mask.png":[function(require,module,exports) {
 module.exports = "/mask.b3a1ed41.png";
 },{}],"img/t1.png":[function(require,module,exports) {
@@ -38022,12 +38022,23 @@ var Sketch = /*#__PURE__*/function () {
     this.textures = [new THREE.TextureLoader().load(_t.default), new THREE.TextureLoader().load(_t2.default)];
     this.mask = new THREE.TextureLoader().load(_mask.default);
     this.time = 0;
+    this.move = 0;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.addMesh();
+    this.mouseEffects();
     this.render();
   }
 
   _createClass(Sketch, [{
+    key: "mouseEffects",
+    value: function mouseEffects() {
+      var _this = this;
+
+      window.addEventListener('mousewheel', function (e) {
+        _this.move += e.wheelDeltaY / 1000;
+      });
+    }
+  }, {
     key: "addMesh",
     value: function addMesh() {
       this.material = new THREE.ShaderMaterial({
@@ -38049,6 +38060,14 @@ var Sketch = /*#__PURE__*/function () {
           mask: {
             type: "t",
             value: this.mask
+          },
+          move: {
+            type: "f",
+            value: 0
+          },
+          time: {
+            type: "f",
+            value: 0
           }
         },
         side: THREE.DoubleSide,
@@ -38060,6 +38079,13 @@ var Sketch = /*#__PURE__*/function () {
       this.geometry = new THREE.BufferGeometry();
       this.positions = new THREE.BufferAttribute(new Float32Array(number * 3), 3);
       this.coordinates = new THREE.BufferAttribute(new Float32Array(number * 3), 3);
+      this.speed = new THREE.BufferAttribute(new Float32Array(number), 1);
+      this.offset = new THREE.BufferAttribute(new Float32Array(number), 1);
+
+      function rand(a, b) {
+        return a + (b - a) * Math.random();
+      }
+
       var index = 0;
 
       for (var i = 0; i < 512; i++) {
@@ -38068,12 +38094,16 @@ var Sketch = /*#__PURE__*/function () {
         for (var j = 0; j < 512; j++) {
           this.positions.setXYZ(index, posX * 2, (j - 256) * 2, 0);
           this.coordinates.setXYZ(index, i, j, 0);
+          this.offset.setX(index, rand(-1000, 1000));
+          this.speed.setX(index, rand(0.4, 1));
           index++;
         }
       }
 
       this.geometry.setAttribute("position", this.positions);
       this.geometry.setAttribute("aCoordinates", this.coordinates);
+      this.geometry.setAttribute("aSpeed", this.speed);
+      this.geometry.setAttribute("aOffset", this.offset);
       this.mesh = new THREE.Points(this.geometry, this.material);
       this.scene.add(this.mesh);
     }
@@ -38083,6 +38113,8 @@ var Sketch = /*#__PURE__*/function () {
       this.time++; // this.mesh.rotation.x += 0.01;
       // this.mesh.rotation.y += 0.02;    
 
+      this.material.uniforms.time.value = this.time;
+      this.material.uniforms.move.value = this.move;
       this.renderer.render(this.scene, this.camera);
       window.requestAnimationFrame(this.render.bind(this));
     }
